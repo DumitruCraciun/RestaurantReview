@@ -1,0 +1,6 @@
+# Ignoră folderele node_modules din ambele părți
+**/node_modules/
+**/.env
+**/build/
+**/dist/
+.DS_Store
