@@ -1,3 +1,4 @@
+// backend/routes/restaurants.js
 const express = require("express");
 const router = express.Router();
 const supabaseProvider = require("../provider/supabase");
@@ -82,4 +83,4 @@ router.put("/:id", async (req, res) => {
   res.sendStatus(200);
 });
 
-exports.router = router;
+module.exports = router;  // corect pentru Render, dar pentru Express ar trebui sa fie module.exports = router;
