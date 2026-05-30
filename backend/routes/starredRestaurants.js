@@ -32,13 +32,6 @@ router.get("/", async (_req, res) => {
   res.json(joinedData);
 });
 
-  // Flatten the data. We are doing this because the database will return a nested structure.
-  // For demo purposes, we change the structure to make it easier to handle on the frontend.
-  const flattenedData = data.map((record) => flattenObject(record));
-
-  res.json(flattenedData);
-});
-
 /**
  * Feature 7: Getting a specific starred restaurant.
  */
