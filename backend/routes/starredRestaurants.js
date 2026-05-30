@@ -1,3 +1,4 @@
+// backend/routes/starredRestaurants.js
 const express = require("express");
 const router = express.Router();
 const supabaseProvider = require("../provider/supabase");
@@ -7,14 +8,29 @@ const flattenObject = require("../utils/flattenObject");
  * Feature 6: Getting the list of all starred restaurants.
  */
 router.get("/", async (_req, res) => {
-  const { data } = await supabaseProvider.from("starred_restaurants").select(`
-		id,
-		comment,
-		restaurants (
-			id,
-			name
-		)
-	`);
+  const { data: starredData, error } = await supabaseProvider
+    .from("starred_restaurants")
+    .select("*");
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  const restaurants = await supabaseProvider.from("restaurants").select("id, name");
+  if (restaurants.error) {
+    res.status(500).json({ error: restaurants.error.message });
+    return;
+  }
+
+  const joinedData = starredData.map((starred) => ({
+    id: starred.id,
+    comment: starred.comment,
+    name: restaurants.data.find((r) => r.id === starred.restaurantId)?.name || "Unknown",
+  }));
+
+  res.json(joinedData);
+});
 
   // Flatten the data. We are doing this because the database will return a nested structure.
   // For demo purposes, we change the structure to make it easier to handle on the frontend.
