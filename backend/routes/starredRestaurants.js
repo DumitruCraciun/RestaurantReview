@@ -8,28 +8,34 @@ const flattenObject = require("../utils/flattenObject");
  * Feature 6: Getting the list of all starred restaurants.
  */
 router.get("/", async (_req, res) => {
-  const { data: starredData, error } = await supabaseProvider
+  // Ia toate restaurantele favorite
+  const { data: starred, error: starredError } = await supabaseProvider
     .from("starred_restaurants")
     .select("*");
-
-  if (error) {
-    res.status(500).json({ error: error.message });
+  
+  if (starredError) {
+    res.status(500).json({ error: starredError.message });
     return;
   }
 
-  const restaurants = await supabaseProvider.from("restaurants").select("id, name");
-  if (restaurants.error) {
-    res.status(500).json({ error: restaurants.error.message });
+  // Ia numele restaurantelor
+  const { data: allRestaurants, error: restaurantsError } = await supabaseProvider
+    .from("restaurants")
+    .select("id, name");
+  
+  if (restaurantsError) {
+    res.status(500).json({ error: restaurantsError.message });
     return;
   }
 
-  const joinedData = starredData.map((starred) => ({
-    id: starred.id,
-    comment: starred.comment,
-    name: restaurants.data.find((r) => r.id === starred.restaurantId)?.name || "Unknown",
+  // Unește datele manual
+  const result = starred.map(star => ({
+    id: star.id,
+    comment: star.comment,
+    name: allRestaurants.find(r => r.id === star.restaurantId)?.name || "Unknown"
   }));
 
-  res.json(joinedData);
+  res.json(result);
 });
 
 /**
